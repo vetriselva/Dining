@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: Dining
+
+  datasource:
+    url: "jdbc:mysql://localhost:3306/Dining"
+    username: root
+    password: 1234
+
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+  flyway:
+    user: root
+    password: 1234
+    enabled: false
+    locations: classpath:db.migration
+    baseline-on-migrate: true
