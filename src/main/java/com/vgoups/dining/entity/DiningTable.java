@@ -3,6 +3,7 @@ package com.vgoups.dining.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "vg_dining_tables")
+@Where(clause = "dt_deleted_at IS NULL")
 
 public class DiningTable {
     @Id

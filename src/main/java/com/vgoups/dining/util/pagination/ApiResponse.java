@@ -1,4 +1,4 @@
-package com.vgoups.dining.util;
+package com.vgoups.dining.util.pagination;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,5 @@ import lombok.Data;
 public class ApiResponse <T> {
     private Boolean status;
     private String message;
-    private T data;
-    private String nextUrl;
-    private int statusCode;
+    private T data = null;
 }

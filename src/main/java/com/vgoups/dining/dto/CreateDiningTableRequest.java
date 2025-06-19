@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @UniqueNameValidate(fieldName = "name")
-public class DiningTableDTO {
+public class CreateDiningTableRequest {
     @NotBlank(message = "Name is required")
     @Size(max = 50, message = "Name must be at most 50 characters")
     private String name;
