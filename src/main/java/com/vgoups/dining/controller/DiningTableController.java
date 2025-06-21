@@ -4,6 +4,7 @@ import com.vgoups.dining.core.BaseController;
 import com.vgoups.dining.dto.CreateDiningTableRequest;
 import com.vgoups.dining.dto.UpdateDiningTableRequest;
 import com.vgoups.dining.entity.DiningTable;
+import com.vgoups.dining.mapper.DiningTableMapper;
 import com.vgoups.dining.repository.DiningTableRepository;
 import com.vgoups.dining.util.pagination.ApiPaginationResponse;
 import com.vgoups.dining.util.pagination.ApiResponse;
@@ -59,15 +60,11 @@ public class DiningTableController extends BaseController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<DiningTable>> create(@Valid @RequestBody CreateDiningTableRequest createDiningTableRequest) {
-        DiningTable entity = new DiningTable();
-        entity.setName(createDiningTableRequest.getName());
-        entity.setMemberCount(createDiningTableRequest.getMemberCount());
-        entity.setStatus(createDiningTableRequest.getStatus());
-        DiningTable response = diningTableRepository.save(entity);
+    public ResponseEntity<ApiResponse<DiningTable>> create(@Valid @RequestBody CreateDiningTableRequest request) {
+        DiningTable response = diningTableRepository.save(DiningTableMapper.toEntity(request));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response(false,"Created successfully", null));
+                .body(response(false,"Created successfully", response));
     }
 
     @PutMapping("/{id}/update")
@@ -84,12 +81,8 @@ public class DiningTableController extends BaseController {
         }
 
         return diningTableRepository.findById(id)
-                .map(table -> {
-                    table.setName(request.getName());
-                    table.setMemberCount(request.getMemberCount());
-                    table.setStatus(request.getStatus());
-                    DiningTable updated = diningTableRepository.save(table);
-
+                .map(entity -> {
+                    DiningTable updated = DiningTableMapper.updateEntity(entity, request);
                     return ResponseEntity
                             .status(HttpStatus.OK)
                             .body(response(true,"Dining table updated successfully", updated));
@@ -111,7 +104,7 @@ public class DiningTableController extends BaseController {
         d.get().setDeletedAt(LocalDateTime.now());
         diningTableRepository.save(d.get());
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(response(true, "Dining table deleted successfully", null));
     }
 
@@ -132,7 +125,7 @@ public class DiningTableController extends BaseController {
 
     }
 
-    @PutMapping("/{id}/de-ctive")
+    @PutMapping("/{id}/deactivate")
     public ResponseEntity<ApiResponse<DiningTable>> deActivate(@PathVariable Long id) {
         return diningTableRepository.findById(id).map(diningTable -> {
             diningTable.setStatus(false);
