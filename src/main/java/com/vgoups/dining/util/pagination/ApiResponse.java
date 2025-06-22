@@ -10,5 +10,6 @@ import lombok.Data;
 public class ApiResponse <T> {
     private Boolean status;
     private String message;
+    private Boolean hasValidationError = false;
     private T data = null;
 }

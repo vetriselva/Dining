@@ -1,4 +1,4 @@
-package com.vgoups.dining.specification.DiningTableSpecification;
+package com.vgoups.dining.specification.diningTable;
 
 import com.vgoups.dining.entity.DiningTable;
 import org.springframework.data.jpa.domain.Specification;

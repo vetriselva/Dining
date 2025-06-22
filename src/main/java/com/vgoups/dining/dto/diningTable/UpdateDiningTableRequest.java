@@ -1,6 +1,5 @@
-package  com.vgoups.dining.dto;
+package com.vgoups.dining.dto.diningTable;
 
-import com.vgoups.dining.validation.DiningTableValidation.UniqueNameValidate;
 import jakarta.validation.constraints.*;
         import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,8 +1,11 @@
 package com.vgoups.dining.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import net.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -29,7 +32,7 @@ public class User {
     private String password;
 
     @Column(name = "u_status", columnDefinition = "TINYINT")
-    private String status;
+    private Boolean status;
 
     @Column(name = "u_created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
@@ -40,12 +43,11 @@ public class User {
     @Column(name= "u_deleted_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime deletedAt;
 
-    @Column(name = "u_created_by", nullable = false)
+    @Column(name = "u_created_by", nullable = true)
     private Long createdBy;
 
-    @Column(name = "u_updated_by", nullable = false)
+    @Column(name = "u_updated_by", nullable = true)
     private Long updatedBy;
-
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -53,7 +55,14 @@ public class User {
             joinColumns = @JoinColumn(name = "ur_user_id", referencedColumnName = "u_id"),
             inverseJoinColumns = @JoinColumn(name = "ur_role_id", referencedColumnName = "r_id")
     )
-
+    @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.createdBy = 1L;
+        this.updatedBy = 1L;
+    }
 
 }

@@ -9,8 +9,9 @@ public abstract class BaseController {
 
     protected  <T> ApiResponse<T> response(Boolean status, String message, T data) {
         return ApiResponse.<T>builder()
-                .status(true)
+                .status(status)
                 .message(message)
+                .hasValidationError(false)
                 .data(data)
                 .build();
     }
