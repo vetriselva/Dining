@@ -2,10 +2,12 @@ package com.vgoups.dining.controller;
 
 import com.vgoups.dining.core.BaseController;
 import com.vgoups.dining.dto.diningTable.CreateDiningTableRequest;
+import com.vgoups.dining.dto.diningTable.DiningResponse;
 import com.vgoups.dining.dto.diningTable.UpdateDiningTableRequest;
 import com.vgoups.dining.entity.DiningTable;
 import com.vgoups.dining.mapper.DiningTableMapper;
 import com.vgoups.dining.repository.DiningTableRepository;
+import com.vgoups.dining.service.DiningTableService;
 import com.vgoups.dining.util.pagination.ApiPaginationResponse;
 import com.vgoups.dining.util.pagination.ApiResponse;
 import com.vgoups.dining.util.pagination.PaginationConstants;
@@ -30,9 +32,10 @@ import java.util.Optional;
 public class DiningTableController extends BaseController {
 
     private final DiningTableRepository diningTableRepository;
+    private final DiningTableService diningTableService;
 
     @PostMapping("/list-by-filter")
-    public ResponseEntity<ApiPaginationResponse<List<CreateDiningTableRequest>>> listByFilter(
+    public ResponseEntity<ApiPaginationResponse<List<DiningResponse>>> listByFilter(
             @RequestBody Map<String, String> filters,
             @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE + "") int page,
             @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE +"") int size,
@@ -41,7 +44,7 @@ public class DiningTableController extends BaseController {
 
         Pageable pageable = PageRequest.of(page,size);
 
-        Page<DiningTable> result = diningTableRepository.findByCriteria(filters, pageable);
+        Page<DiningTable> result = diningTableService.findByCriteria(filters, pageable);
 
         String nextUrl = null;
         if(result.hasNext()) {
@@ -49,89 +52,87 @@ public class DiningTableController extends BaseController {
             nextUrl = baseUrl + "?page=" + (page + 1) + "&size="+size;
         }
 
-        List<CreateDiningTableRequest> diningList = result
-                .map(DiningTableMapper::toDto).toList();
+        List<DiningResponse> diningList = result
+                .map(DiningTableMapper::toResponse).toList();
 
         return simplePagination(true,"Dining list", diningList, nextUrl, HttpStatus.OK);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<DiningTable>> create(@Valid @RequestBody CreateDiningTableRequest request) {
-        DiningTable response = diningTableRepository.save(DiningTableMapper.toEntity(request));
+    public ResponseEntity<ApiResponse<DiningResponse>> create(@Valid @RequestBody CreateDiningTableRequest request) {
+        DiningResponse response = diningTableService.save(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response(true,"Created successfully", response));
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse<DiningTable>> update(
+    public ResponseEntity<ApiResponse<DiningResponse>> updateById(
             @PathVariable Long id,
             @Valid @RequestBody UpdateDiningTableRequest request
     ) {
 
-        if (diningTableRepository.existsByNameAndDiningIdNot(request.getName(), id)) {
+        if (diningTableService.existsByNameAndDiningIdNot(request.getName(), id)) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response(false,"Name already exists", null));
 
         }
+        DiningTable diningTable = diningTableService.findDiningTableById(id);
+        if(diningTable == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(response(false,"Item not found", null));
+        }
+        DiningResponse response = diningTableService.updateById(diningTable, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response(true,"Dining table updated successfully", response));
 
-        return diningTableRepository.findById(id)
-                .map(entity -> {
-                    DiningTable updated = DiningTableMapper.updateEntity(entity, request);
-                    return ResponseEntity
-                            .status(HttpStatus.OK)
-                            .body(response(true,"Dining table updated successfully", updated));
-
-                }).orElseGet(() ->  ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response(true,"Item not found", null)));
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
-        Optional<DiningTable> d = diningTableRepository.findById(id);
-        if (d.isEmpty()) {
+    public ResponseEntity<ApiResponse<Void>> deleteById(@PathVariable Long id) {
+        DiningTable diningTable = diningTableService.findDiningTableById(id);
+        if(diningTable == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(response(false, "Item not found", null));
-
+                    .body(response(false,"Item not found", null));
         }
-        d.get().setDeletedAt(LocalDateTime.now());
-        diningTableRepository.save(d.get());
+        DiningResponse diningResponse = diningTableService.deleteById(diningTable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response(true, "Dining table deleted successfully", null));
+
     }
 
     @PutMapping("/{id}/active")
-    public ResponseEntity<ApiResponse<DiningTable>> activate(@PathVariable Long id) {
-        return diningTableRepository.findById(id).map(diningTable -> {
-            diningTable.setStatus(true);
-            DiningTable updated = diningTableRepository.save(diningTable);
-
+    public ResponseEntity<ApiResponse<DiningResponse>> activate(@PathVariable Long id) {
+        DiningTable diningTable = diningTableService.findDiningTableById(id);
+        if(diningTable == null) {
             return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(response(true, "Dining table activated successfully", updated));
-
-        }).orElseGet(()-> ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(response(false,"Item not found", null));
+        }
+        DiningResponse diningResponse = diningTableService.activateOrInactive(diningTable, true);
+        return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response(false, "Item not found", null)));
+                .body(response(true, "Dining table activated successfully", null));
 
     }
 
     @PutMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<DiningTable>> deActivate(@PathVariable Long id) {
-        return diningTableRepository.findById(id).map(diningTable -> {
-            diningTable.setStatus(false);
-            DiningTable updated = diningTableRepository.save(diningTable);
+    public ResponseEntity<ApiResponse<DiningResponse>> deActivate(@PathVariable Long id) {
+        DiningTable diningTable = diningTableService.findDiningTableById(id);
+        if(diningTable == null) {
             return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(response(true, "Dining table activated successfully", updated));
-
-        }).orElseGet(()-> ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response(false, "Item not found", null)));
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(response(false,"Item not found", null));
+        }
+        DiningResponse diningResponse = diningTableService.activateOrInactive(diningTable, false);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response(true, "Dining table activated successfully", null));
 
     }
 

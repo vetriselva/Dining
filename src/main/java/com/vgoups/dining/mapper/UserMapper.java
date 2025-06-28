@@ -1,6 +1,7 @@
 package com.vgoups.dining.mapper;
 
 import com.vgoups.dining.dto.user.CreateUserRequest;
+import com.vgoups.dining.dto.user.UpdateUserRequest;
 import com.vgoups.dining.dto.user.UserResponse;
 import com.vgoups.dining.entity.Role;
 import com.vgoups.dining.entity.User;
@@ -18,25 +19,20 @@ import java.util.*;
 public class UserMapper {
 
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
 
-    public User toEntity(CreateUserRequest createUserRequest) throws BadRequestException {
-        Set<Role> roles = new HashSet<>(roleRepository.findAllById(createUserRequest.getRolesId()));
-        if (roles.size() != createUserRequest.getRolesId().size()) {
-            throw new BadRequestException("One or more roles not found");
-        }
+    public User toEntity(CreateUserRequest createUserRequest) {
         User user = new User();
         user.setName(createUserRequest.getName());
         user.setEmail(createUserRequest.getEmail());
         user.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
         user.setStatus(createUserRequest.getStatus());
-        user.setRoles(roles);
         return user;
     }
 
 
-    public UserResponse entityToResponse(User user) {
+    public UserResponse toResponse(User user) {
         UserResponse createUserRequest = new UserResponse();
+        createUserRequest.setId(user.getId());
         createUserRequest.setName(user.getName());
         createUserRequest.setEmail(user.getEmail());
         List<String> roles = new ArrayList<>();
@@ -45,6 +41,15 @@ public class UserMapper {
         }
         createUserRequest.setRoles(roles);
         return createUserRequest;
+    }
+
+    public User toUpdateEntity(UpdateUserRequest updateUserRequest) {
+        User user = new User();
+        user.setName(updateUserRequest.getName());
+        user.setEmail(updateUserRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(updateUserRequest.getPassword()));
+        user.setStatus(updateUserRequest.getStatus());
+        return user;
     }
 
 }

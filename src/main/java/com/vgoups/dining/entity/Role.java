@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +14,8 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "vg_roles")
+@Where(clause = "r_deleted_at IS NULL")
+
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

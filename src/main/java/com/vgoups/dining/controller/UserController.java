@@ -1,14 +1,11 @@
 package com.vgoups.dining.controller;
 
 import com.vgoups.dining.core.BaseController;
-import com.vgoups.dining.dto.diningTable.CreateDiningTableRequest;
 import com.vgoups.dining.dto.user.CreateUserRequest;
+import com.vgoups.dining.dto.user.UpdateUserRequest;
 import com.vgoups.dining.dto.user.UserResponse;
 import com.vgoups.dining.entity.User;
-import com.vgoups.dining.mapper.DiningTableMapper;
 import com.vgoups.dining.mapper.UserMapper;
-import com.vgoups.dining.repository.RoleRepository;
-import com.vgoups.dining.repository.UserRepository;
 import com.vgoups.dining.service.UserService;
 import com.vgoups.dining.util.pagination.ApiPaginationResponse;
 import com.vgoups.dining.util.pagination.ApiResponse;
@@ -32,7 +29,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController extends BaseController {
 
-    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserService userService;
 
@@ -53,7 +49,7 @@ public class UserController extends BaseController {
         }
 
         List<UserResponse> userList = result
-                .map(userMapper::entityToResponse)
+                .map(userMapper::toResponse)
                 .toList();
 
         return simplePagination(true,"User list", userList, nextUrl, HttpStatus.OK);
@@ -67,6 +63,64 @@ public class UserController extends BaseController {
         }
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response(true, "User created successfully", response));
+    }
+
+    @PutMapping("/{id}/update")
+    public ResponseEntity<ApiResponse<UserResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest request
+    ) throws BadRequestException {
+        if(userService.existsUserByEmailNotId(request.getEmail(), id)){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response(false, "Email Id already exists", null));
+        }
+        UserResponse response = userService.updateById(id, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response(true,"User updated successfully", response));
+    }
+
+    public ResponseEntity<ApiResponse<UserResponse>> delete(@PathVariable Long id) {
+        User user = userService.findById(id);
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(response(false, "User not found", null));
+        }
+        userService.delete(user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response(true, "User deleted successfully", null));
+
+    }
+
+    @PutMapping("/{id}/active")
+    public ResponseEntity<ApiResponse<UserResponse>> activate(@PathVariable Long id) {
+        User user = userService.findById(id);
+        if(user == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(response(false,"Item not found", null));
+        }
+        UserResponse response = userService.activateOrInactive(user, true);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response(true, "User activated successfully", response));
+
+    }
+
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<ApiResponse<UserResponse>> deActivate(@PathVariable Long id) {
+        User user = userService.findById(id);
+        if(user == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(response(false,"Item not found", null));
+        }
+        UserResponse response = userService.activateOrInactive(user, false);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response(true, "User deactivated successfully", response));
+
     }
 
 

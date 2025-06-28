@@ -3,6 +3,7 @@ package com.vgoups.dining.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "vg_order_items")
+@Where(clause = "oi_deleted_at IS NULL")
+
 public class OrderItem {
 
     @Id

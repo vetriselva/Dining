@@ -1,6 +1,7 @@
 package com.vgoups.dining.mapper;
 
 import com.vgoups.dining.dto.diningTable.CreateDiningTableRequest;
+import com.vgoups.dining.dto.diningTable.DiningResponse;
 import com.vgoups.dining.dto.diningTable.UpdateDiningTableRequest;
 import com.vgoups.dining.entity.DiningTable;
 
@@ -21,12 +22,16 @@ public class DiningTableMapper {
         return entity;
     }
 
-    public static CreateDiningTableRequest toDto(DiningTable entity) {
-        CreateDiningTableRequest request = new CreateDiningTableRequest();
+    public static DiningResponse toResponse(DiningTable entity) {
+        DiningResponse request = new DiningResponse();
+        request.setDiningId(entity.getDiningId());
         request.setName(entity.getName());
         request.setMemberCount(entity.getMemberCount());
         request.setStatus(entity.getStatus());
+        request.setCreatedAt(entity.getCreatedAt());
+        request.setUpdatedAt(entity.getUpdatedAt());
         return request;
     }
+
 
 }

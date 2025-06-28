@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import net.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -15,6 +16,8 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "vg_users")
+@Where(clause = "u_deleted_at IS NULL")
+
 public class User {
 
     @Id

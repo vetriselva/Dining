@@ -3,6 +3,7 @@ package com.vgoups.dining.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "vg_items")
+@Where(clause = "i_deleted_at IS NULL")
+
 public class Item {
 
     @Id

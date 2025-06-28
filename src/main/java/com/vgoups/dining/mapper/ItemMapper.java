@@ -1,6 +1,7 @@
 package com.vgoups.dining.mapper;
 
 import com.vgoups.dining.dto.item.CreateItemRequest;
+import com.vgoups.dining.dto.item.ItemResponse;
 import com.vgoups.dining.dto.item.UpdateItemRequest;
 import com.vgoups.dining.entity.Item;
 
@@ -13,8 +14,9 @@ public class ItemMapper {
         return item;
     }
 
-    public static CreateItemRequest toDto(Item entity) {
-        CreateItemRequest request = new CreateItemRequest();
+    public static ItemResponse toResponse(Item entity) {
+        ItemResponse request = new ItemResponse();
+        request.setItemId(entity.getId());
         request.setName(entity.getName());
         request.setDescription(entity.getDescription());
         request.setStatus(entity.getStatus());
@@ -27,4 +29,6 @@ public class ItemMapper {
         entity.setStatus(request.getStatus());
         return entity;
     }
+
+
 }

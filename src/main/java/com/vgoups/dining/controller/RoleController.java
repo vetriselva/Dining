@@ -4,15 +4,22 @@ import com.vgoups.dining.core.BaseController;
 import com.vgoups.dining.dto.item.CreateItemRequest;
 import com.vgoups.dining.dto.item.ItemResponse;
 import com.vgoups.dining.dto.item.UpdateItemRequest;
+import com.vgoups.dining.dto.role.CreateRoleRequest;
+import com.vgoups.dining.dto.role.RoleResponse;
+import com.vgoups.dining.dto.role.UpdateRoleRequest;
+import com.vgoups.dining.dto.user.UserResponse;
 import com.vgoups.dining.entity.Item;
+import com.vgoups.dining.entity.Role;
 import com.vgoups.dining.mapper.ItemMapper;
-import com.vgoups.dining.service.ItemService;
+import com.vgoups.dining.mapper.RoleMapper;
+import com.vgoups.dining.service.RoleService;
 import com.vgoups.dining.util.pagination.ApiPaginationResponse;
 import com.vgoups.dining.util.pagination.ApiResponse;
 import com.vgoups.dining.util.pagination.PaginationConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,17 +30,15 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/item")
-public class ItemController extends BaseController {
+@RequestMapping("/api/role")
+public class RoleController extends BaseController {
 
-    private final ItemService itemService;
+    private final RoleService roleService;
 
     @PostMapping("/list-by-filter")
-    public ResponseEntity<ApiPaginationResponse<List<ItemResponse>>> listByFilter(
+    public ResponseEntity<ApiPaginationResponse<List<RoleResponse>>> listByFilter(
             @RequestParam Map<String, String> filters,
             @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE + "") int page,
             @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE + "") int size,
@@ -41,94 +46,96 @@ public class ItemController extends BaseController {
     ) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Item> items = itemService.findByCriteria(filters, pageable);
+        Page<Role> roles = roleService.findByCriteria(filters, pageable);
         String nextUrl = null;
 
-        if(items.hasNext()){
+        if(roles.hasNext()){
             String baseUrl = httpServletRequest.getRequestURL().toString();
             nextUrl = baseUrl +"?page="+ (page +1) +"size="+size;
         }
 
-        List<ItemResponse> result = items
-                .map(ItemMapper::toResponse).toList();
+        List<RoleResponse> result = roles
+                .map(RoleMapper::toResponse).toList();
 
-        return simplePagination(true,"Dining list", result, nextUrl, HttpStatus.OK);
+        return simplePagination(true,"Role list", result, nextUrl, HttpStatus.OK);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<ItemResponse>> create(@Valid @RequestBody CreateItemRequest request) {
-        ItemResponse response = ItemMapper.toResponse(itemService.save(request));
+    public ResponseEntity<ApiResponse<RoleResponse>> create(@Valid @RequestBody CreateRoleRequest request) {
+        RoleResponse response = RoleMapper.toResponse(roleService.save(request));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response(false,"Created successfully", response));
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse<ItemResponse>> update(
+    public ResponseEntity<ApiResponse<RoleResponse>> update(
             @PathVariable Long id,
-            @RequestBody UpdateItemRequest request
+            @RequestBody UpdateRoleRequest request
     ) {
-        if (itemService.existsByNameAndIdNot(request.getName(), id)) {
+        if (roleService.existsByNameAndIdNot(request.getRoleName(), id)) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response(false,"Name already exists", null));
 
         }
-        Item item = itemService.findById(id);
-        if(item == null) {
+        Role role = roleService.findById(id);
+        if(role == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(response(false,"Item not found", null));
         }
-        ItemResponse response = itemService.update(item, request);
+        RoleResponse updated = roleService.update(role, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response(true,"Item updated successfully", response));
+                .body(response(true,"Role updated successfully", updated));
+
     }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
-        Item item = itemService.findById(id);
-        if(item == null) {
+        Role role = roleService.findById(id);
+        if(role == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(response(false,"Item not found", null));
         }
-        itemService.delete(item);
+        roleService.delete(role);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response(true,"Item updated successfully", null));
+                .body(response(true,"Role updated successfully", null));
 
     }
 
 
-    @PutMapping("/{id}/active")
-    public ResponseEntity<ApiResponse<ItemResponse>> activate(@PathVariable Long id) {
-        Item item = itemService.findById(id);
-        if(item == null) {
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<ApiResponse<RoleResponse>> activate(@PathVariable Long id) {
+        Role role = roleService.findById(id);
+        if(role == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(response(false,"Item not found", null));
         }
-        ItemResponse response = itemService.activateOrInactive(item, Boolean.TRUE);
+       RoleResponse response = roleService.activateOrInactive(role, Boolean.TRUE);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response(true,"Item updated successfully", response));
+                .body(response(true,"Role updated successfully", response));
 
     }
 
     @PutMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<ItemResponse>> deActivate(@PathVariable Long id) {
-        Item item = itemService.findById(id);
-        if (item == null) {
+    public ResponseEntity<ApiResponse<RoleResponse>> deActivate(@PathVariable Long id) {
+        Role role = roleService.findById(id);
+        if(role == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(response(false, "Item not found", null));
+                    .body(response(false,"Item not found", null));
         }
-        ItemResponse response = itemService.activateOrInactive(item, Boolean.FALSE);
+        RoleResponse response = roleService.activateOrInactive(role, Boolean.FALSE);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response(true, "Item updated successfully", response));
+                .body(response(true,"Role updated successfully", response));
 
     }
 }
+
