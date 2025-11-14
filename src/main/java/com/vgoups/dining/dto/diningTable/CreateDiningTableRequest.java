@@ -3,6 +3,7 @@ package com.vgoups.dining.dto.diningTable;
 import com.vgoups.dining.validation.DiningTableValidation.UniqueNameValidate;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,5 +1,6 @@
 package com.vgoups.dining.dto.diningTable;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;

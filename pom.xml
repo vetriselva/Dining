@@ -96,9 +96,17 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>
+        <finalName>Dining</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

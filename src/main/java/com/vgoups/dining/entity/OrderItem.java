@@ -29,7 +29,7 @@ public class OrderItem {
     private Item items;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "oi_prepareb_by_id", referencedColumnName = "u_id", nullable = false)
+    @JoinColumn(name = "oi_prepared_by_id", referencedColumnName = "u_id", nullable = false)
     private User user;
 
     @Column(name = "oi_status", nullable = false)

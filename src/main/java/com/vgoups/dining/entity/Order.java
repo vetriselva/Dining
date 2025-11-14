@@ -27,7 +27,7 @@ public class Order {
     @Column(name = "o_status", columnDefinition = "TINYINT")
     private Boolean status = Boolean.TRUE;
 
-    @Column(name = "o_palaced_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "o_placed_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime placedAt;
 
     @Column(name = "o_prepared_at", columnDefinition = "TIMESTAMP")

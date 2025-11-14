@@ -21,10 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequestMapping("api/dining-table")
 @RestController
@@ -38,24 +38,24 @@ public class DiningTableController extends BaseController {
     public ResponseEntity<ApiPaginationResponse<List<DiningResponse>>> listByFilter(
             @RequestBody Map<String, String> filters,
             @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE + "") int page,
-            @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE +"") int size,
+            @RequestParam(defaultValue = PaginationConstants.DEFAULT_PAGE_SIZE + "") int size,
             HttpServletRequest httpServletRequest
     ) {
 
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
 
         Page<DiningTable> result = diningTableService.findByCriteria(filters, pageable);
 
         String nextUrl = null;
-        if(result.hasNext()) {
+        if (result.hasNext()) {
             String baseUrl = httpServletRequest.getRequestURL().toString();
-            nextUrl = baseUrl + "?page=" + (page + 1) + "&size="+size;
+            nextUrl = baseUrl + "?page=" + (page + 1) + "&size=" + size;
         }
 
         List<DiningResponse> diningList = result
                 .map(DiningTableMapper::toResponse).toList();
 
-        return simplePagination(true,"Dining list", diningList, nextUrl, HttpStatus.OK);
+        return simplePagination(true, "Dining list", diningList, nextUrl, HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -63,7 +63,7 @@ public class DiningTableController extends BaseController {
         DiningResponse response = diningTableService.save(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response(true,"Created successfully", response));
+                .body(response(true, "Created successfully", response));
     }
 
     @PutMapping("/{id}/update")
@@ -75,29 +75,29 @@ public class DiningTableController extends BaseController {
         if (diningTableService.existsByNameAndDiningIdNot(request.getName(), id)) {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(response(false,"Name already exists", null));
+                    .body(response(false, "Name already exists", null));
 
         }
         DiningTable diningTable = diningTableService.findDiningTableById(id);
-        if(diningTable == null) {
+        if (diningTable == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(response(false,"Item not found", null));
+                    .body(response(false, "Item not found", null));
         }
         DiningResponse response = diningTableService.updateById(diningTable, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response(true,"Dining table updated successfully", response));
+                .body(response(true, "Dining table updated successfully", response));
 
     }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<Void>> deleteById(@PathVariable Long id) {
         DiningTable diningTable = diningTableService.findDiningTableById(id);
-        if(diningTable == null) {
+        if (diningTable == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(response(false,"Item not found", null));
+                    .body(response(false, "Item not found", null));
         }
         DiningResponse diningResponse = diningTableService.deleteById(diningTable);
         return ResponseEntity
@@ -109,10 +109,10 @@ public class DiningTableController extends BaseController {
     @PutMapping("/{id}/active")
     public ResponseEntity<ApiResponse<DiningResponse>> activate(@PathVariable Long id) {
         DiningTable diningTable = diningTableService.findDiningTableById(id);
-        if(diningTable == null) {
+        if (diningTable == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(response(false,"Item not found", null));
+                    .body(response(false, "Item not found", null));
         }
         DiningResponse diningResponse = diningTableService.activateOrInactive(diningTable, true);
         return ResponseEntity
@@ -124,10 +124,10 @@ public class DiningTableController extends BaseController {
     @PutMapping("/{id}/deactivate")
     public ResponseEntity<ApiResponse<DiningResponse>> deActivate(@PathVariable Long id) {
         DiningTable diningTable = diningTableService.findDiningTableById(id);
-        if(diningTable == null) {
+        if (diningTable == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(response(false,"Item not found", null));
+                    .body(response(false, "Item not found", null));
         }
         DiningResponse diningResponse = diningTableService.activateOrInactive(diningTable, false);
         return ResponseEntity
@@ -135,5 +135,6 @@ public class DiningTableController extends BaseController {
                 .body(response(true, "Dining table activated successfully", null));
 
     }
+
 
 }
