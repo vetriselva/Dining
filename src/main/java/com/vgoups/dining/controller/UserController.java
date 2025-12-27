@@ -11,6 +11,7 @@ import com.vgoups.dining.util.pagination.ApiPaginationResponse;
 import com.vgoups.dining.util.pagination.ApiResponse;
 import com.vgoups.dining.util.pagination.PaginationConstants;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -41,18 +42,14 @@ public class UserController extends BaseController {
             ) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> result = userService.findByCriteria(filter, pageable);
+        Page<UserResponse> result = userService.findByCriteria(filter, pageable);
         String nextUrl = null;
         if(result.hasNext()) {
             String baseUrl = request.getRequestURL().toString();
             nextUrl = baseUrl + "?page=" + (page + 1) + "&size="+size;
         }
 
-        List<UserResponse> userList = result
-                .map(userMapper::toResponse)
-                .toList();
-
-        return simplePagination(true,"User list", userList, nextUrl, HttpStatus.OK);
+        return simplePagination(true,"User list", result.getContent(), nextUrl, HttpStatus.OK);
     }
 
     @PostMapping("/create")

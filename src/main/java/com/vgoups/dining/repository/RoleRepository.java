@@ -22,4 +22,6 @@ public interface RoleRepository extends JpaRepository<Role, Long>, JpaSpecificat
     }
 
     public Boolean existsByRoleNameAndRoleIdNot(String name, long itemId);
+
+    public Role findByRoleName(String name);
 }

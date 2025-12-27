@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,7 +23,7 @@ public class Order {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "o_request_id", referencedColumnName = "u_id", nullable = false)
+    @JoinColumn(name = "o_request_id", referencedColumnName = "u_id", nullable = true)
     private User user;
 
     @Column(name = "o_status", columnDefinition = "TINYINT")
@@ -37,7 +39,22 @@ public class Order {
     private LocalDateTime completedAt;
 
     @OneToOne
-    @JoinColumn(name = "o_created_by", referencedColumnName = "u_id", nullable = true)
+    @JoinColumn(name = "o_created_by", referencedColumnName = "u_id")
     private User createdBy;
+
+    @Column(name = "o_deleted_at", columnDefinition =  "TIMESTAMP")
+    private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrder(this);
+    }
+
+    private void removeOrderItem(OrderItem orderItem) {
+        orderItems.remove(orderItem);
+    }
 
 }

@@ -20,7 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,10 @@ public class ItemService {
 
     public Item findById(Long id) {
         return itemRepository.findById(id).orElse(null);
+    }
+
+    public List<Item> findAllById(List<Long> ids) {
+        return itemRepository.findAllById(ids);
     }
 
     public ItemResponse update(Item item, UpdateItemRequest request) {

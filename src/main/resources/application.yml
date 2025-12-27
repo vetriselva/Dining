@@ -2,16 +2,19 @@ spring:
   application:
     name: Dining
 
+  profiles:
+    active: dev
+
   datasource:
-    url: "jdbc:mysql://mysql-db:3306/Dining"
-    username: root
-    password: 1234
+    url: jdbc:mysql://localhost:3306/dining
+    username: appuser
+    password: apppass
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create
+    open-in-view: false
 
 
   flyway:

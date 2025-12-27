@@ -14,6 +14,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -43,8 +44,15 @@ public class UserService {
         return userRepository.existsUserByEmail(email);
     }
 
-    public Page<User> findByCriteria(Map<String, String> filter, Pageable pageable) {
-        return userRepository.findByCriteria(filter, pageable);
+
+    @Transactional(readOnly = true)
+    public Page<UserResponse> findByCriteria(
+            Map<String, String> filter,
+            Pageable pageable
+    ) {
+        Page<User> users = userRepository.findByCriteria(filter, pageable);
+
+        return users.map(userMapper::toResponse);
     }
 
     public boolean existsUserByEmailNotId(String email, Long id) {

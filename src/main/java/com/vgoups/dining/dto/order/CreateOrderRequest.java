@@ -1,17 +1,15 @@
 package com.vgoups.dining.dto.order;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 public class CreateOrderRequest {
-    @NotBlank(message = "Requested by field is required")
+    @NotNull(message = "Requested by field is required")
     private Long requestedBy;
 
     @NotNull
-    private Set<@NotNull(message = "Item ID must not be null") Long> itemId;
-
+    private List<@NotNull(message = "Item ID must not be null") Long> itemId;
 }
