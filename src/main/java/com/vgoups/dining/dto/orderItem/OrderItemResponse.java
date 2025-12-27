@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class OrderItemResponse {
     private Long orderItem;
     private Integer qty;
-    private String status;
+    private OrderItemStatus status;
     private User preparedBy;
     private LocalDateTime createdAt;
 }

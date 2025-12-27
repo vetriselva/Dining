@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import net.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
@@ -32,6 +31,7 @@ public class User {
     private String email;
 
     @Column(name = "u_password", nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(name = "u_status", columnDefinition = "TINYINT")
@@ -46,13 +46,13 @@ public class User {
     @Column(name= "u_deleted_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime deletedAt;
 
-    @Column(name = "u_created_by", nullable = true)
+    @Column(name = "u_created_by")
     private Long createdBy;
 
-    @Column(name = "u_updated_by", nullable = true)
+    @Column(name = "u_updated_by")
     private Long updatedBy;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "vg_user_roles",
             joinColumns = @JoinColumn(name = "ur_user_id", referencedColumnName = "u_id"),

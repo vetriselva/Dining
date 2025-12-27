@@ -1,5 +1,6 @@
 package com.vgoups.dining.entity;
 
+import com.vgoups.dining.dto.order.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,12 +23,13 @@ public class Order {
     @Column(name = "o_id")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "o_request_id", referencedColumnName = "u_id", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "o_request_id", referencedColumnName = "u_id")
     private User user;
 
-    @Column(name = "o_status", columnDefinition = "TINYINT")
-    private Boolean status = Boolean.TRUE;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "o_status", nullable = false)
+    private OrderStatus status = OrderStatus.STARTED;
 
     @Column(name = "o_placed_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime placedAt;
@@ -38,7 +40,7 @@ public class Order {
     @Column(name = "o_completed_at", columnDefinition =  "TIMESTAMP")
     private LocalDateTime completedAt;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "o_created_by", referencedColumnName = "u_id")
     private User createdBy;
 
@@ -55,6 +57,11 @@ public class Order {
 
     private void removeOrderItem(OrderItem orderItem) {
         orderItems.remove(orderItem);
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.placedAt = LocalDateTime.now();
     }
 
 }

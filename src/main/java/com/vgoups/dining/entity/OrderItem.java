@@ -1,12 +1,12 @@
 package com.vgoups.dining.entity;
 
+import com.vgoups.dining.dto.orderItem.OrderItemStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -22,22 +22,23 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "oi_order_id", referencedColumnName = "o_id", nullable = true)
+    @JoinColumn(name = "oi_order_id", referencedColumnName = "o_id")
     private Order order;
 
     @Column(name = "oi_qty")
     private Integer qty;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "oi_item_id", referencedColumnName = "i_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "oi_item_id", referencedColumnName = "i_id")
     private Item item;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "oi_prepared_by_id", referencedColumnName = "u_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "oi_prepared_by_id", referencedColumnName = "u_id")
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "oi_status", nullable = false)
-    private String status;
+    private OrderItemStatus status;
 
     @Column(name = "oi_active", nullable = false)
     private Boolean active = true;
@@ -46,7 +47,11 @@ public class OrderItem {
     private LocalDateTime createdAt;
 
     @Column(name = "oi_deleted_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime deletedAt;
+    private LocalDateTime updatedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
