@@ -10,7 +10,7 @@ import java.util.List;
 public class OrderResponse {
     private Long orderId;
     private List<OrderItemResponse> orderItems;
-    private Boolean status;
+    private OrderStatus status;
     private LocalDateTime placedAt;
     private LocalDateTime preparedAt;
     private LocalDateTime completedAt;

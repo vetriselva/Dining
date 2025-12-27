@@ -21,6 +21,7 @@ public class OrderMapper {
         orderResponse.setCompletedAt(order.getCompletedAt());
         orderResponse.setPlacedAt(order.getPlacedAt());
         orderResponse.setPreparedAt(order.getPreparedAt());
+        orderResponse.setStatus(order.getStatus());
 
 
         List<OrderItemResponse> itemResponses =
